@@ -1,9 +1,9 @@
 package com.example.springboot.controllers;
 
 import com.example.springboot.dtos.ProductRequestDTO;
-import com.example.springboot.dtos.ProductResponseDTO;
 import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
+import com.example.springboot.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("products")
 public class ProductController {
 
-
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductService productService;
+
     @PostMapping
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRequestDTO productRequestDTO) {
-        var productModel = new ProductModel();
-        BeanUtils.copyProperties(productRequestDTO, productModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
+        ProductModel savedProduct = productService.saveProduct(productRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
+
 
     @GetMapping
     public ResponseEntity<List<ProductModel>> getAllProducts() {
