@@ -1,15 +1,15 @@
 package com.example.springboot.services;
 
+import com.example.springboot.controllers.ProductController;
 import com.example.springboot.dtos.ProductRequestDTO;
 import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +33,13 @@ public class ProductService {
 
     public List<ProductModel> getAllProducts() {
         List<ProductModel> list_products = productRepository.findAll();
-//        if(!list_products.isEmpty()){
-//            for (ProductModel product: list_products){
-//                UUID id = product.getIdProduct();
-//                product.add(linkTo(methodOn(ProductService.class).getOneProduct(id)).withSelfRel());
-//            }
-//        }
+        if(!list_products.isEmpty()){
+            for(ProductModel product : list_products){
+                UUID id = product.getIdProduct();
+                Link selfLink = linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel();
+                product.add(selfLink);
+            }
+        }
         return list_products;
     }
 
@@ -47,7 +48,8 @@ public class ProductService {
         if(product.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
         }
-//        product.get().add(linkTo(methodOn(ProductService.class).getAllProducts()).withSelfRel());
+        Link productLink = linkTo(methodOn(ProductController.class).getAllProducts()).withRel("AllProducts");
+        product.get().add(productLink);
         return ResponseEntity.status(HttpStatus.FOUND).body(product.get());
     }
 
