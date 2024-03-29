@@ -2,6 +2,8 @@ package com.example.springboot.services;
 
 import com.example.springboot.controllers.ProductController;
 import com.example.springboot.dtos.ProductRequestDTO;
+import com.example.springboot.exceptions.products.ProductExceptions;
+import com.example.springboot.exceptions.products.ProductNotFoundException;
 import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
 import org.springframework.beans.BeanUtils;
@@ -44,31 +46,21 @@ public class ProductService {
     }
 
     public ResponseEntity<Object> getOneProduct(UUID id) {
-        Optional<ProductModel> product = productRepository.findById(id);
-        if(product.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
-        }
+        ProductModel product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
         Link productLink = linkTo(methodOn(ProductController.class).getAllProducts()).withRel("AllProducts");
-        product.get().add(productLink);
-        return ResponseEntity.status(HttpStatus.FOUND).body(product.get());
+        product.add(productLink);
+        return ResponseEntity.status(HttpStatus.FOUND).body(product);
     }
 
 
     public ResponseEntity<Object> updateProduct(UUID id, ProductRequestDTO data) {
-        Optional<ProductModel> product = productRepository.findById(id);
-        if(product.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
-        }
-        var p = product.get();
-        BeanUtils.copyProperties(data, p);
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(p));
+        ProductModel product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+        BeanUtils.copyProperties(data, product);
+        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(product));
     }
 
     public ResponseEntity<Object> deleteProduct(UUID id) {
-        Optional<ProductModel> product = productRepository.findById(id);
-        if(product.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
-        }
+        ProductModel product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
         productRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body("Product deleted sucessfully");
     }
