@@ -25,11 +25,32 @@
     
 
 - PUT /products/:id
-    - Altera os dados do usuário
+    - Altera os dados do produto
         - Obrigatório o envio de todos os dados pelo Body da aplicação.
             - Caso não seja passado nenhum dos dados, retorna um erro
 
 - DELETE /products/:id
     - Exclui o produto informado nos parametros da rota
         - Deve ser informado no parametro da rota o `id` do produto que deve ser excluído
+
+<hr>
+     
+**Users**
+
+- POST /users
+    - Realiza o cadastro de um user na aplicação
+        - Obrigatório o envio dos dados `name`, `email` e `password`  pelo body da aplicação
+
+- GET /users
+    - Lista todos os users cadastrados na aplicação
+    
+
+- PUT /users/:id
+    - Altera os dados do usuário
+        - Obrigatório o envio de todos os dados pelo Body da aplicação.
+            - Caso não seja passado nenhum dos dados, retorna um erro
+
+- DELETE /users/:id
+    - Exclui o user informado nos parametros da rota
+        - Deve ser informado no parametro da rota o `id` do user que deve ser excluído
 
