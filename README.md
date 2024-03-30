@@ -32,6 +32,8 @@
 - DELETE /products/:id
     - Exclui o produto informado nos parametros da rota
         - Deve ser informado no parametro da rota o `id` do produto que deve ser excluído
+
+<hr>
      
 **Users**
 
