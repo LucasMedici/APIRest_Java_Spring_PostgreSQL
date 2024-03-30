@@ -13,4 +13,9 @@ public class UsersExceptions extends ResponseEntityExceptionHandler {
     public ResponseEntity<String> userNotFoundHandler(UserNotFoundException exception){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
+
+    @ExceptionHandler(UserCredentialsInvalid.class)
+    public ResponseEntity<String> userCredentialsInvalid(UserCredentialsInvalid exception){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Invalid");
+    }
 }

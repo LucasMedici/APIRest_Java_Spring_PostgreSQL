@@ -6,6 +6,7 @@ import com.example.springboot.dtos.UserRequestDTO;
 import com.example.springboot.exceptions.users.UserNotFoundException;
 import com.example.springboot.models.UserModel;
 import com.example.springboot.repositories.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -61,5 +63,12 @@ public class UserService {
         userRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.FOUND).body("User deleted sucessfully");
 
+    }
+
+
+    public Optional<UserModel> findByEmail(String email) {
+        Optional<UserModel> user = userRepository.findByEmail(email);
+        System.out.println(user);
+        return user;
     }
 }
