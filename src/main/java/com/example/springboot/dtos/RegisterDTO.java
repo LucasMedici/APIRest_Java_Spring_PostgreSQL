@@ -1,6 +1,7 @@
 package com.example.springboot.dtos;
 
+import com.example.springboot.infra.security.UserRole;
 import jakarta.validation.constraints.NotBlank;
 
-public record RegisterDTO(@NotBlank String name, @NotBlank String email, @NotBlank String password) {
+public record RegisterDTO(String name,String email,String password,UserRole role) {
 }

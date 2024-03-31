@@ -13,6 +13,7 @@ public class ProductExceptions extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     private ResponseEntity<String> productNotFoundHandler(ProductNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+
     }
 
 

@@ -2,46 +2,51 @@ package com.example.springboot.controllers;
 
 import com.example.springboot.dtos.LoginDTO;
 import com.example.springboot.dtos.RegisterDTO;
-import com.example.springboot.dtos.UserRequestDTO;
-import com.example.springboot.exceptions.users.UserCredentialsInvalid;
+import com.example.springboot.infra.security.TokenService;
 import com.example.springboot.models.UserModel;
+import com.example.springboot.repositories.UserRepository;
 import com.example.springboot.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
-@RequestMapping
+@RequestMapping("auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+
+  @Autowired
+  private AuthenticationManager authenticationManager;
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginDTO loginDTO){
-        Optional<UserModel> user = userService.findByEmail(loginDTO.email());
-        if(user.isEmpty()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access invalid");
-        }
-        if(loginDTO.password().equals(user.get().getPassword())){
-            return ResponseEntity.status(HttpStatus.OK).body("autorizado");
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access invalid");
-
+    public ResponseEntity login(@RequestBody @Valid LoginDTO loginDTO){
+        var usernamePassword = new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password());
+        var auth = this.authenticationManager.authenticate(usernamePassword);
+        var token = tokenService.generateToken((UserModel) auth.getPrincipal());
+        return ResponseEntity.status(HttpStatus.OK).body(token+" "+auth.getName());
     }
+
+
 
     @PostMapping("/register")
-    public ResponseEntity<Object> register(@RequestBody @Valid UserRequestDTO userRequestDTO){
-        Optional<UserModel> user = userService.findByEmail(userRequestDTO.email());
-        if(user.isEmpty()){
-            userService.saveUser(userRequestDTO);
-            return ResponseEntity.status(HttpStatus.OK).body("Sucessfully");
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
+    public ResponseEntity<Object> register(@RequestBody RegisterDTO registerDTO){
+        if(this.userRepository.findByEmail(registerDTO.email()) != null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
+        String encryptedPassword = new BCryptPasswordEncoder().encode(registerDTO.password());
+        UserModel user = new UserModel(registerDTO.name(), registerDTO.email(), encryptedPassword, registerDTO.role());
+        this.userRepository.save(user);
+        return ResponseEntity.ok().build();
     }
-
 }
