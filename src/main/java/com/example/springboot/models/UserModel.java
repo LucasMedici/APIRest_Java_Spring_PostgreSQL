@@ -1,6 +1,8 @@
 package com.example.springboot.models;
 
 
+import com.example.springboot.dtos.RegisterDTO;
+import com.example.springboot.dtos.UserRequestDTO;
 import com.example.springboot.infra.security.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,12 +34,30 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     private String password;
     private UserRole role;
 
+    @OneToMany(mappedBy = "user" ,cascade = CascadeType.ALL)
+    private List<AdressModel> adresses;
+
+
     public UserModel(String name, String email, String password, UserRole role){
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
     }
+
+    public UserModel (UserRequestDTO userRequestDTO){
+        this.name = userRequestDTO.name();
+        this.email = userRequestDTO.email();
+        this.password = userRequestDTO.password();
+    }
+
+    public UserModel(UUID id, String name, String email, String password){
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

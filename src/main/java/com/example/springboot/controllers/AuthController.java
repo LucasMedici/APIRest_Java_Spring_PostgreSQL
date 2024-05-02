@@ -15,7 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("auth")
@@ -36,7 +36,8 @@ public class AuthController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
         var token = tokenService.generateToken((UserModel) auth.getPrincipal());
-        return ResponseEntity.status(HttpStatus.OK).body(token+" "+auth.getName());
+
+        return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
 
