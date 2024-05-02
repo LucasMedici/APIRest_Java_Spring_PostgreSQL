@@ -3,6 +3,7 @@ package com.example.springboot.services;
 
 import com.example.springboot.controllers.UserController;
 import com.example.springboot.dtos.UserRequestDTO;
+import com.example.springboot.exceptions.users.UserCredentialsInvalid;
 import com.example.springboot.exceptions.users.UserNotFoundException;
 import com.example.springboot.models.UserModel;
 import com.example.springboot.repositories.UserRepository;
@@ -30,7 +31,8 @@ public class UserService {
     public UserModel saveUser(UserRequestDTO userRequestDTO){
         var user = new UserModel();
         BeanUtils.copyProperties(userRequestDTO, user);
-        return userRepository.save(user);
+        this.userRepository.save(user);
+        return user;
     }
 
     public List<UserModel> getAllUsers() {
@@ -45,23 +47,30 @@ public class UserService {
         return users;
     }
 
-    public ResponseEntity<Object> getOneUser(UUID id){
-        UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    public Optional<UserModel> getOneUser(UUID id){
+        Optional<UserModel> user = userRepository.findById(id);
+        if (user.isEmpty()){
+            throw new UserNotFoundException();
+        }
         Link usersLink = linkTo(methodOn(UserController.class).getAllUsers()).withRel("ALL Users");
-        user.add(usersLink);
-        return ResponseEntity.status(HttpStatus.FOUND).body(user);
+        user.get().add(usersLink);
+        return user;
     }
 
-    public ResponseEntity<Object> updateUser(UUID id, UserRequestDTO userRequestDTO){
+    public UserModel updateUser(UUID id, UserRequestDTO userRequestDTO){
         UserModel user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         BeanUtils.copyProperties(userRequestDTO, user);
-        return ResponseEntity.status(HttpStatus.FOUND).body(userRepository.save(user));
+        this.userRepository.save(user);
+        return user;
     }
 
-    public ResponseEntity<Object> deleteUser(UUID id){
-        UserModel user = userRepository.findById(id).orElseThrow();
-        userRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.FOUND).body("User deleted sucessfully");
+    public Optional<UserModel> deleteUser(UUID id){
+        Optional<UserModel> user = userRepository.findById(id);
+        if(user.isEmpty()){
+            throw new UserNotFoundException();
+        }
+        this.userRepository.deleteById(id);
+        return user;
 
     }
 
